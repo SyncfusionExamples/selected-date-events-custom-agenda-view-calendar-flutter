@@ -1,2 +1,1 @@
-# selected-date-events-custom-agenda-view-calendar-flutter
-How to update custom agenda view events while selected date changes in Flutter date range picker (SfDataRangePicker)?
+**[View document in Syncfusion Flutter Knowledge base](https://www.syncfusion.com/kb/11570/how-to-update-the-custom-agenda-view-events-when-selected-date-changes-in-the-flutter-date)**
