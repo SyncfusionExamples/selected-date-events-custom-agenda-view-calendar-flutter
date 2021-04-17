@@ -7,30 +7,18 @@ import 'package:intl/intl.dart';
 
 void main() => runApp(GettingSelectedDateAppointments());
 
-class GettingSelectedDateAppointments extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: CustomAgenda(),
-    );
-  }
-}
-
-class CustomAgenda extends StatefulWidget {
+class GettingSelectedDateAppointments extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => ScheduleExample();
 }
 
-class ScheduleExample extends State<CustomAgenda> {
-  List<Appointment> appointmentDetails;
-  CalendarController _calendarController;
-  _DataSource _dataSource;
+class ScheduleExample extends State<GettingSelectedDateAppointments> {
+  List<Appointment>? appointmentDetails = <Appointment>[];
+  CalendarController? _calendarController = CalendarController();
+  _DataSource? _dataSource;
 
   @override
   void initState() {
-    _calendarController = CalendarController();
-    appointmentDetails = <Appointment>[];
     _dataSource = _DataSource(getCalendarDataSource());
     super.initState();
   }
@@ -40,7 +28,7 @@ class ScheduleExample extends State<CustomAgenda> {
     return (Scaffold(
       body: Column(
         children: <Widget>[
-          Expanded(
+          SafeArea(
             child: SfCalendar(
               view: CalendarView.month,
               controller: _calendarController,
@@ -54,20 +42,20 @@ class ScheduleExample extends State<CustomAgenda> {
                   color: Colors.black12,
                   child: ListView.separated(
                     padding: const EdgeInsets.all(2),
-                    itemCount: appointmentDetails.length,
+                    itemCount: appointmentDetails!.length,
                     //subjectDetails.length,
                     itemBuilder: (BuildContext context, int index) {
                       return Container(
                           padding: EdgeInsets.all(2),
                           height: 60,
-                          color: appointmentDetails[index].color,
+                          color: appointmentDetails![index].color,
                           child: ListTile(
                             leading: Column(
                               children: <Widget>[
                                 Text(
-                                  appointmentDetails[index].isAllDay
+                                  appointmentDetails![index].isAllDay
                                       ? ''
-                                      : '${DateFormat('hh:mm a').format(appointmentDetails[index].startTime)}',
+                                      : '${DateFormat('hh:mm a').format(appointmentDetails![index].startTime)}',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       fontWeight: FontWeight.w600,
@@ -75,16 +63,16 @@ class ScheduleExample extends State<CustomAgenda> {
                                       height: 1.7),
                                 ),
                                 Text(
-                                  appointmentDetails[index].isAllDay
+                                  appointmentDetails![index].isAllDay
                                       ? 'All day'
                                       : '',
                                   style: TextStyle(
                                       height: 0.5, color: Colors.white),
                                 ),
                                 Text(
-                                  appointmentDetails[index].isAllDay
+                                  appointmentDetails![index].isAllDay
                                       ? ''
-                                      : '${DateFormat('hh:mm a').format(appointmentDetails[index].endTime)}',
+                                      : '${DateFormat('hh:mm a').format(appointmentDetails![index].endTime)}',
                                   textAlign: TextAlign.center,
                                   style: TextStyle(
                                       fontWeight: FontWeight.w600,
@@ -94,13 +82,13 @@ class ScheduleExample extends State<CustomAgenda> {
                             ),
                             trailing: Container(
                                 child: Icon(
-                              getIcon(appointmentDetails[index].subject),
+                              getIcon(appointmentDetails![index].subject),
                               size: 30,
                               color: Colors.white,
                             )),
                             title: Container(
                                 child: Text(
-                                    '${appointmentDetails[index].subject}',
+                                    '${appointmentDetails![index].subject}',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                         fontWeight: FontWeight.w600,
@@ -119,22 +107,20 @@ class ScheduleExample extends State<CustomAgenda> {
 
   void calendarTapped(CalendarTapDetails calendarTapDetails) {
     if (calendarTapDetails.targetElement == CalendarElement.calendarCell) {
-      SchedulerBinding.instance.addPostFrameCallback((duration) {
+      SchedulerBinding.instance!.addPostFrameCallback((duration) {
         _updateAppointmentDetails();
       });
     }
   }
 
   void viewChanged(ViewChangedDetails viewChangedDetails) {
-    SchedulerBinding.instance.addPostFrameCallback((duration) {
+    SchedulerBinding.instance!.addPostFrameCallback((duration) {
       var midDate = (viewChangedDetails
           .visibleDates[viewChangedDetails.visibleDates.length ~/ 2]);
-      if (midDate.month == DateTime
-          .now()
-          .month)
-        _calendarController.selectedDate = DateTime.now();
+      if (midDate.month == DateTime.now().month)
+        _calendarController!.selectedDate = DateTime.now();
       else {
-        _calendarController.selectedDate = DateTime(
+        _calendarController!.selectedDate = DateTime(
           midDate.year,
           midDate.month,
           01,
@@ -151,37 +137,37 @@ class ScheduleExample extends State<CustomAgenda> {
   void _updateAppointmentDetails() {
     appointmentDetails = <Appointment>[];
     final DateTime viewStartDate = DateTime(
-        _calendarController.selectedDate.year,
-        _calendarController.selectedDate.month,
-        _calendarController.selectedDate.day,
+        _calendarController!.selectedDate!.year,
+        _calendarController!.selectedDate!.month,
+        _calendarController!.selectedDate!.day,
         0,
         0,
         0);
     final DateTime viewEndDate = DateTime(
-        _calendarController.selectedDate.year,
-        _calendarController.selectedDate.month,
-        _calendarController.selectedDate.day,
+        _calendarController!.selectedDate!.year,
+        _calendarController!.selectedDate!.month,
+        _calendarController!.selectedDate!.day,
         23,
         59,
         59);
-    if (_dataSource.appointments == null || _dataSource.appointments.isEmpty)
+    if (_dataSource!.appointments == null || _dataSource!.appointments!.isEmpty)
       return;
-    for (int i = 0; i < _dataSource.appointments.length; i++) {
-      final Appointment appointment = _dataSource.appointments[i];
+    for (int i = 0; i < _dataSource!.appointments!.length; i++) {
+      final Appointment appointment = _dataSource!.appointments![i];
       if (appointment.recurrenceRule == null) {
         if (_isSameDate(viewStartDate, appointment.startTime) ||
             _isSameDate(viewStartDate, appointment.endTime) ||
             (appointment.startTime.isBefore(viewStartDate) &&
                 appointment.endTime.isAfter(viewEndDate))) {
-          appointmentDetails.add(appointment);
+          appointmentDetails!.add(appointment);
         }
       } else {
         final List<DateTime> dateCollection =
-        SfCalendar.getRecurrenceDateTimeCollection(
-            appointment.recurrenceRule, appointment.startTime);
+            SfCalendar.getRecurrenceDateTimeCollection(
+                appointment.recurrenceRule!, appointment.startTime);
         for (int j = 0; j < dateCollection.length; j++) {
           if (_isSameDate(dateCollection[j], viewStartDate)) {
-            appointmentDetails.add(appointment);
+            appointmentDetails!.add(appointment);
           }
         }
       }
