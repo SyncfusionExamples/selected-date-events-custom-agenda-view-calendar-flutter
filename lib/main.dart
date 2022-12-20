@@ -1,20 +1,58 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/widgets.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
 
-void main() => runApp(GettingSelectedDateAppointments());
-
-class GettingSelectedDateAppointments extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => ScheduleExample();
+void main() {
+  runApp(const MyApp());
 }
 
-class ScheduleExample extends State<GettingSelectedDateAppointments> {
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        // This is the theme of your application.
+        //
+        // Try running your application with "flutter run". You'll see the
+        // application has a blue toolbar. Then, without quitting the app, try
+        // changing the primarySwatch below to Colors.green and then invoke
+        // "hot reload" (press "r" in the console where you ran "flutter run",
+        // or simply save your changes to "hot reload" in a Flutter IDE).
+        // Notice that the counter didn't reset back to zero; the application
+        // is not restarted.
+        primarySwatch: Colors.blue,
+      ),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({super.key, required this.title});
+
+  // This widget is the home page of your application. It is stateful, meaning
+  // that it has a State object (defined below) that contains fields that affect
+  // how it looks.
+
+  // This class is the configuration for the state. It holds the values (in this
+  // case the title) provided by the parent (in this case the App widget) and
+  // used by the build method of the State. Fields in a Widget subclass are
+  // always marked "final".
+
+  final String title;
+
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
   List<Appointment>? appointmentDetails = <Appointment>[];
-  CalendarController? _calendarController = CalendarController();
+  final CalendarController _calendarController = CalendarController();
   _DataSource? _dataSource;
 
   @override
@@ -25,7 +63,12 @@ class ScheduleExample extends State<GettingSelectedDateAppointments> {
 
   @override
   Widget build(BuildContext context) {
-    return (Scaffold(
+    return Scaffold(
+      appBar: AppBar(
+        // Here we take the value from the MyHomePage object that was created by
+        // the App.build method, and use it to set our appbar title.
+        title: Text(widget.title),
+      ),
       body: Column(
         children: <Widget>[
           SafeArea(
@@ -46,7 +89,7 @@ class ScheduleExample extends State<GettingSelectedDateAppointments> {
                     //subjectDetails.length,
                     itemBuilder: (BuildContext context, int index) {
                       return Container(
-                          padding: EdgeInsets.all(2),
+                          padding: const EdgeInsets.all(2),
                           height: 60,
                           color: appointmentDetails![index].color,
                           child: ListTile(
@@ -55,26 +98,26 @@ class ScheduleExample extends State<GettingSelectedDateAppointments> {
                                 Text(
                                   appointmentDetails![index].isAllDay
                                       ? ''
-                                      : '${DateFormat('hh:mm a').format(appointmentDetails![index].startTime)}',
+                                      : DateFormat('hh:mm a').format(appointmentDetails![index].startTime),
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       color: Colors.white,
-                                      height: 1.7),
+                                      height: 1.5),
                                 ),
                                 Text(
                                   appointmentDetails![index].isAllDay
                                       ? 'All day'
                                       : '',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       height: 0.5, color: Colors.white),
                                 ),
                                 Text(
                                   appointmentDetails![index].isAllDay
                                       ? ''
-                                      : '${DateFormat('hh:mm a').format(appointmentDetails![index].endTime)}',
+                                      : DateFormat('hh:mm a').format(appointmentDetails![index].endTime),
                                   textAlign: TextAlign.center,
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.w600,
                                       color: Colors.white),
                                 ),
@@ -88,9 +131,9 @@ class ScheduleExample extends State<GettingSelectedDateAppointments> {
                             )),
                             title: Container(
                                 child: Text(
-                                    '${appointmentDetails![index].subject}',
+                                    appointmentDetails![index].subject,
                                     textAlign: TextAlign.center,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white))),
                           ));
@@ -101,26 +144,26 @@ class ScheduleExample extends State<GettingSelectedDateAppointments> {
                     ),
                   )))
         ],
-      ),
-    ));
+      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
   }
 
   void calendarTapped(CalendarTapDetails calendarTapDetails) {
     if (calendarTapDetails.targetElement == CalendarElement.calendarCell) {
-      SchedulerBinding.instance!.addPostFrameCallback((duration) {
+      SchedulerBinding.instance.addPostFrameCallback((duration) {
         _updateAppointmentDetails();
       });
     }
   }
 
   void viewChanged(ViewChangedDetails viewChangedDetails) {
-    SchedulerBinding.instance!.addPostFrameCallback((duration) {
+    SchedulerBinding.instance.addPostFrameCallback((duration) {
       var midDate = (viewChangedDetails
           .visibleDates[viewChangedDetails.visibleDates.length ~/ 2]);
-      if (midDate.month == DateTime.now().month)
-        _calendarController!.selectedDate = DateTime.now();
-      else {
-        _calendarController!.selectedDate = DateTime(
+      if (midDate.month == DateTime.now().month) {
+        _calendarController.selectedDate = DateTime.now();
+      } else {
+        _calendarController.selectedDate = DateTime(
           midDate.year,
           midDate.month,
           01,
@@ -137,21 +180,22 @@ class ScheduleExample extends State<GettingSelectedDateAppointments> {
   void _updateAppointmentDetails() {
     appointmentDetails = <Appointment>[];
     final DateTime viewStartDate = DateTime(
-        _calendarController!.selectedDate!.year,
-        _calendarController!.selectedDate!.month,
-        _calendarController!.selectedDate!.day,
+        _calendarController.selectedDate!.year,
+        _calendarController.selectedDate!.month,
+        _calendarController.selectedDate!.day,
         0,
         0,
         0);
     final DateTime viewEndDate = DateTime(
-        _calendarController!.selectedDate!.year,
-        _calendarController!.selectedDate!.month,
-        _calendarController!.selectedDate!.day,
+        _calendarController.selectedDate!.year,
+        _calendarController.selectedDate!.month,
+        _calendarController.selectedDate!.day,
         23,
         59,
         59);
-    if (_dataSource!.appointments == null || _dataSource!.appointments!.isEmpty)
+    if (_dataSource!.appointments == null || _dataSource!.appointments!.isEmpty) {
       return;
+    }
     for (int i = 0; i < _dataSource!.appointments!.length; i++) {
       final Appointment appointment = _dataSource!.appointments![i];
       if (appointment.recurrenceRule == null) {
@@ -189,13 +233,13 @@ class ScheduleExample extends State<GettingSelectedDateAppointments> {
     List<Appointment> appointments = <Appointment>[];
     appointments.add(Appointment(
       startTime: DateTime.now(),
-      endTime: DateTime.now().add(Duration(hours: 1)),
+      endTime: DateTime.now().add(const Duration(hours: 1)),
       subject: 'Meeting',
       color: Colors.green,
     ));
     appointments.add(Appointment(
       startTime: DateTime.now(),
-      endTime: DateTime.now().add(Duration(hours: 2)),
+      endTime: DateTime.now().add(const Duration(hours: 2)),
       subject: 'Planning',
       color: Colors.red,
     ));
@@ -207,9 +251,9 @@ class ScheduleExample extends State<GettingSelectedDateAppointments> {
     ));
     appointments.add(Appointment(
         startTime: DateTime.now(),
-        endTime: DateTime.now().add(Duration(hours: 3)),
+        endTime: DateTime.now().add(const Duration(hours: 3)),
         subject: 'Recurrence',
-        color: Color(0xFFfb21f66),
+        color: const Color(0xFFfb21f66),
         recurrenceRule: 'FREQ=DAILY;INTERVAL=2;COUNT=10'));
 
     return appointments;
