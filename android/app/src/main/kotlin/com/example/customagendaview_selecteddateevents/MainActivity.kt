@@ -1,4 +1,4 @@
-package com.example.flutter_getting_selected_app
+package com.example.customagendaview_selecteddateevents
 
 import io.flutter.embedding.android.FlutterActivity
 
